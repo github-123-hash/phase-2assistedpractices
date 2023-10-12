@@ -1,0 +1,75 @@
+public class RediffLogin Page {
+
+// Page class in object repository
+
+
+WebDriver driver;
+
+public RediffLoginpage(WebDriver driver) {
+
+
+
+this.driver driver;
+
+}
+
+
+
+
+
+
+
+
+
+By username=By.xpath(".//*[@id='login1']"); // storing the web element
+
+
+
+
+By Password=By.name("passwd");
+
+By go=By.name("proceed");
+
+public WebElement Emaild()
+
+{
+
+return driver.findElement(username);
+
+// finding the web element
+
+}
+public class LoginApplication {
+
+*This test case will get https://mail.rediff.com/cgi-bin/login.cgi
+
+*And Login to application
+
+*/
+
+@Test
+
+public void Login()
+
+{
+
+System.setProperty("webdriver.chrome.driver", "chromedriver.exe"); WebDriver driver=new ChromeDriver();
+
+driver.get("https://mail.rediff.com/cgi-bin/login.cgi");
+
+//create Login Page object RediffLoginpage rfLogin=new RediffLoginpage (driver);
+
+//enter Emaild
+
+rfLogin.Emaild().sendKeys("hello");
+
+//enter password
+
+rfLogin.Password().sendKeys("123");
+
+
+//click on Go button
+
+rfLogin.submit().click();
+
+}
