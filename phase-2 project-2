@@ -1,0 +1,331 @@
+Source page:
+TestBase:-
+package com.ninja.qa.Base;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+
+public class TestBase {
+	
+	// Base class indicates the driver session and Application details
+	// this base class will be called in every test class
+	
+	public static WebDriver driver;
+	public static ExtentReports extentreports;
+	public static ExtentTest extentTest;
+	
+	public static void openBrowser()
+	{
+	    driver = new ChromeDriver();
+		
+		driver.manage().window().maximize();
+		driver.get("https://tutorialsninja.com/demo/");	
+	}
+	
+	@BeforeTest
+	public void getnameMethod(ITestContext context)
+	{
+		extentTest=	extentreports.createTest(context.getName());
+	}
+	
+	@BeforeSuite  // this method will be excuted before suite begins its execution
+	public void InitalizeExtentReport()
+	{
+		ExtentSparkReporter sparkreporter = new ExtentSparkReporter("reportpom.html");
+		extentreports = new ExtentReports();
+		extentreports.attachReporter(sparkreporter);
+		// on the report display more information about OS, browser, java etc
+		extentreports.setSystemInfo("OS", System.getProperty("os.name"));
+		extentreports.setSystemInfo("JAVA", System.getProperty("java.version"));
+		
+	}
+
+	@AfterSuite
+	public void generateReports() throws IOException
+	{
+		extentreports.flush();
+		Desktop.getDesktop().browse(new File("reportpom.html").toURI());
+	}
+	
+	
+	@AfterMethod
+	public void generateTestStatus(Method m,ITestResult result)
+	{
+		if(result.getStatus() == ITestResult.FAILURE )
+		{
+			System.out.println("Capture Screenshot");
+			extentTest.fail(result.getThrowable());
+		}
+		else if (result.getStatus() == ITestResult.SUCCESS) {
+			extentTest.pass(m.getName() + " is passed");
+		}
+	}
+
+}
+
+HomePage:-
+package com.ninja.qa.Pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+import com.ninja.qa.Base.TestBase;
+
+public class HomePage extends TestBase {
+	
+	Actions a = new Actions(driver);
+	// Create PageFactory
+	// this code will find the element using xpath locator and store it in webelement object myaccount
+	
+	@FindBy(xpath = "//span[text()='My Account']")
+	WebElement myaccount;
+	
+	@FindBy(xpath = "//a[text()='Register']")
+	WebElement register;
+	
+	@FindBy(xpath="//a[text()='Login']")
+	WebElement login;
+	
+	@FindBy(xpath="//a[text()='Desktops']")
+	WebElement desktop;
+	
+	@FindBy(linkText ="Mac (1)")
+	WebElement macdropdown;
+	
+	// create constructor of current class to initaiate the elements
+	// every page class will ahve a constructor initiating the elements
+	
+	public HomePage(WebDriver driver) {
+		
+		PageFactory.initElements(driver, this);
+		// driver can now work with your elements and methods of this class
+		
+	}
+
+	
+	// We will now write action methods, that will perform action on these elements
+	//but these methods will not be executed here.
+	
+	public void gettitle()
+	{
+		String title = driver.getTitle();
+		System.out.println(title);
+		
+	}
+	
+	// method name is similar to action to be done
+	
+	public void clickonMyAccount()
+	{
+		myaccount.click();
+	}
+	
+	public void clickonLogin()
+	{
+		login.click();
+	}
+	
+	public void clickonRegister()
+	{
+	register.click();
+	}
+	
+	public void clickOnMac() throws InterruptedException
+	{
+	    a.moveToElement(desktop).build().perform();
+	    
+	    Thread.sleep(1500);
+	    
+	    macdropdown.click();
+	}
+	}
+Register page:-
+package com.ninja.qa.Pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class RegisterPage {
+	
+	@FindBy(xpath="//input[@id='input-firstname']")
+	WebElement firstname;
+	@FindBy(xpath="//input[@id='input-lastname']")
+	WebElement lastname;
+	@FindBy(xpath="//input[@id='input-email']")
+	WebElement emailid;
+	@FindBy(xpath="//input[@name='telephone']")
+	WebElement phone;
+	@FindBy(xpath="//input[@id='input-password']")
+	WebElement passwd;
+	@FindBy(xpath="//input[@id='input-confirm']")
+	WebElement confirmpasswd;
+	@FindBy(xpath="(//input[@name='newsletter'])[1]")
+	WebElement subscriberadiobtn;
+	@FindBy(xpath="//input[@name='agree']")
+	WebElement policycheckbox;
+	@FindBy(xpath="//input[@type='submit']")
+	WebElement continuebutton;
+	
+	public RegisterPage(WebDriver driver) {
+		
+		PageFactory.initElements(driver, this);
+		
+	}
+	
+	public void regirsteruser(String name,String lname,String email,String ph,String password,String cpasswd) throws InterruptedException {
+		
+		firstname.clear();
+		firstname.sendKeys(name);
+		lastname.clear();
+		lastname.sendKeys(lname);
+		emailid.clear();
+		emailid.sendKeys(email);
+		phone.clear();
+		phone.sendKeys(ph);
+		passwd.clear();
+		passwd.sendKeys(password);
+		confirmpasswd.clear();
+		confirmpasswd.sendKeys(cpasswd);
+		subscriberadiobtn.click();
+		Thread.sleep(1000);
+		policycheckbox.click();
+		Thread.sleep(1000);
+		continuebutton.click();
+	}}
+HomepageTest:-
+package com.ninja.qa.TestPages;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+
+import com.ninja.qa.Base.TestBase;
+import com.ninja.qa.Pages.HomePage;
+
+
+public class HomePageTest extends TestBase{
+	
+	HomePage hp;
+	
+	@BeforeMethod
+	public void OpenApp()
+	{
+		openBrowser();
+		hp = new HomePage(driver);
+	}
+	
+	
+	@AfterMethod
+	public void CloseApp()
+	{
+		driver.quit();
+	}
+	
+	@Test(priority='1')
+	public void testTitle()
+	{
+		hp.gettitle();
+	}
+	
+
+	@Test(priority='2')
+	public void testRegisterLink()
+	{
+		hp.clickonMyAccount();  // on homapge click on myaccount
+		hp.clickonRegister();  // clcik on register
+		hp.gettitle();  // get title
+	}
+
+	@Test(priority='3')
+	public void testLoginLink()
+	{
+		hp.clickonMyAccount();  // on homapge click on myaccount
+		hp.clickonLogin(); // clcik on login
+		hp.gettitle();  // get title
+	}
+	
+	
+	@Test(priority='4')
+	public void testMacLink() throws InterruptedException
+	{
+		hp.clickOnMac();
+		hp.gettitle();  // get title
+	}
+	}
+
+TestRegisterPage:-
+package com.ninja.qa.TestPages;
+
+import java.io.IOException;
+
+import org.apache.poi.EncryptedDocumentException;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import com.ninja.qa.Base.TestBase;
+import com.ninja.qa.Pages.HomePage;
+import com.ninja.qa.Pages.RegisterPage;
+import com.ninja.qa.Utilities.Xls_DataProvider;
+
+public class TestRegisterPage extends TestBase {
+	
+	
+HomePage hp;
+RegisterPage rp;
+	@BeforeMethod
+	public void OpenApp()
+	{
+		openBrowser();
+		hp = new HomePage(driver);
+		rp = new RegisterPage(driver);
+	}
+	
+	
+	@AfterMethod
+	public void CloseApp()
+	{
+		driver.quit();
+	}
+	
+	
+	@Test(priority='1', dataProvider="testdata")
+	public void testregisterUser(String name,String lname,String email,String ph,String password,String cpasswd) throws InterruptedException
+	{
+		hp.clickonMyAccount();
+		hp.clickonRegister();
+		rp.regirsteruser(name,lname,email,ph,password,cpasswd);
+	}
+	
+	@DataProvider(name="testdata")
+	public Object[][] datasupplier() throws EncryptedDocumentException, IOException
+	{
+		
+		Object[] [] input = Xls_DataProvider.getTestData("Sheet1");
+		return input;
+		
+	}
+}
