@@ -1,0 +1,128 @@
+Source code:
+Feature file:
+@all
+Feature: Testing Amazon page Background:
+Given I open the browser and enter URL Then I capture the title of the Page Scenario: User on sigin page of amazon And user mouse hover and click to the sigin Given User is on sigin Page
+Then User enters following details and user click on signin
+| admin@gmail.com| admin@24 | Scenario: user want to perform add to cart Then search for product mobile
+Then search for the brand of mobile Scenario: user want to perform wishlist Given user search for product
+And select the product
+
+Then click add wishlist
+Steps
+
+Amazon sigin:
+package steps; import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver; import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver; import org.openqa.selenium.interactions.Actions; import io.cucumber.datatable.DataTable;
+ 
+import io.cucumber.java.en.Given; import io.cucumber.java.en.Then; public class AmazonsiginDemo {
+
+static WebDriver driver;
+@Given("I open the browser and enter URL") public void i_open_the_browser_and_enter_url() { driver = new ChromeDriver(); driver.manage().window().maximize(); driver.get("https://www.amazon.in/");
+}
+@Then("I capture the title of the Page") public void i_capture_the_title_of_the_page() {
+System.out.println("title of the is page is : "+ driver.getTitle());
+}
+@Then("user mouse hover and click to the sigin")
+public void user_mouse_hover_and_click_to_the_sigin() throws InterruptedException { WebElement e1=driver.findElement(By.xpath("//*[@class='nav-line-2 ']"));
+Actions a = new Actions(driver); a.moveToElement(e1).perform(); Thread.sleep(3000);
+driver.findElement(By.xpath("//span[text()='Sign in']")).click(); Thread.sleep(3000);
+}
+@Then("user click on signin")
+public void user_click_on_signin() throws InterruptedException { driver.findElement(By.xpath("//span[text()='Sign in']")).click(); Thread.sleep(3000);
+}
+ 
+@Given("User is on sigin Page") public void user_is_on_sigin_page() {
+System.out.println("title of the is page is : "+ driver.getTitle());
+}
+@Then("User enters following details and user click on signin")
+public void User_enters_following_details_and_user_click_on_signin(DataTable dataTable) { List<List<String>> userList = dataTable.asLists(String.class);
+for(List<String> e : userList)
+{
+driver.findElement(By.id("ap_email")).sendKeys(e.get(0)); driver.findElement(By.xpath("//input[@id='continue']")).click(); driver.findElement(By.id("ap_password")).sendKeys(e.get(1)); driver.findElement(By.id("signInSubmit")).click();
+}
+}
+}
+Add to cart:
+package steps;
+import java.util.ArrayList; import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement; import org.openqa.selenium.interactions.Actions; import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then; public class AddToCart {
+@Then ("search for product mobile")
+public void Then_search_for_product_mobile() throws InterruptedException
+{
+ 
+AmazonsiginDemo.driver.findElement(By.linkText("Mobiles")).click();WebElement mobile = AmazonsiginDemo.driver.findElement(By.xpath("//*[@id='nav-subnav']/descendant::span[2]"));
+Actions a = new Actions(AmazonsiginDemo.driver); a.moveToElement(mobile).build().perform();
+Thread.sleep(3000);
+}
+@Then ("search for the brand of mobile")
+public void Then_search_for_the_brand_of_mobile() throws InterruptedException
+{
+AmazonsiginDemo.driver.findElement(By.linkText("Apple")).click();
+AmazonsiginDemo.driver.findElement(By.xpath("(//div[@class='sg-col- inner'])[6]/descendant::span[9]")).click();
+ArrayList<String> tabs = new ArrayList<String>(AmazonsiginDemo.driver.getWindowHandles()); AmazonsiginDemo.driver.switchTo().window(tabs.get(1));
+Thread.sleep(1500);
+}
+@And ("add product to the cart")
+public void And_add_product_to_the_cart()
+{
+AmazonsiginDemo. driver.findElement(By.id("add-to-cart-button")).click();
+}
+}
+Wishlist:
+package steps;
+import java.util.ArrayList;
+import org.openqa.selenium.By; import io.cucumber.java.en.And; import io.cucumber.java.en.Given; import io.cucumber.java.en.Then;
+ 
+public class WishList { @Given("user search for product")
+public void Given_user_search_for_product() throws InterruptedException
+{
+AmazonsiginDemo.driver.findElement(By.id("twotabsearchtextbox")).sendKeys("iphone 13"); AmazonsiginDemo.driver.findElement(By.id("twotabsearchtextbox")).submit(); Thread.sleep(1500);
+}
+@ And ("select the product")
+public void And_select_the_product() throws InterruptedException
+{
+AmazonsiginDemo.driver.findElement(By.xpath("(//div[@class='a- section'])[2]/descendant::span[11]")).click();
+ArrayList<String> tabs = new ArrayList<String>(AmazonsiginDemo.driver.getWindowHandles()); AmazonsiginDemo.driver.switchTo().window(tabs.get(1));
+Thread.sleep(1500);
+}
+@Then ("click add wishlist")
+public void Then_click_add_wishlist() throws InterruptedException
+{
+AmazonsiginDemo.driver.findElement(By.id("wishlistButtonStack")).click(); Thread.sleep(2000);
+AmazonsiginDemo.driver.quit();
+}
+
+}
+Runner file: cucumber report
+
+package runner;
+import org.junit.runner.RunWith; import io.cucumber.junit.Cucumber;
+ 
+import io.cucumber.junit.CucumberOptions; @RunWith(Cucumber.class)
+@CucumberOptions(features="C:\\Users\\HP\\eclipse- workspace\\2022\\CucumberProject\\src\\test\\java\\features\\AmazonDemo.feature",
+glue= {"steps"}, dryRun=false, plugin={"pretty",
+"html:target/cucumberreport.html"}, tags="@all"
+)
+public class TestRunner {
+
+
+}
+For extent report:
+package runner;
+import org.junit.runner.RunWith; import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions; @RunWith(Cucumber.class)
+@CucumberOptions(features="C:\\Users\\HP\\eclipse- workspace\\2022\\CucumberProject\\src\\test\\java\\features\\AmazonDemo.feature",
+glue= {"steps"},
+plugin= {"html:target/Cucumberreport.html", "pretty",
+"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:", "timeline:test-output-thread/"
+}
+)
+ 
+public class TestRunnerExtentReport {
+
+
+}
